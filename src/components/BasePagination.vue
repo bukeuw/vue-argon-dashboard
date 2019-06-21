@@ -18,6 +18,8 @@
   </ul>
 </template>
 <script>
+import {mapActions} from 'vuex'
+
 export default {
   name: "base-pagination",
   props: {
@@ -108,19 +110,17 @@ export default {
       }
       return arr;
     },
-    changePage(item) {
-      this.$emit("input", item);
-    },
     nextPage() {
       if (this.value < this.totalPages) {
-        this.$emit("input", this.value + 1);
+        this.changePage(this.value + 1)
       }
     },
     prevPage() {
       if (this.value > 1) {
-        this.$emit("input", this.value - 1);
+        this.changePage(this.value - 1)
       }
-    }
+    },
+    ...mapActions(['changePage'])
   },
   watch: {
     perPage() {

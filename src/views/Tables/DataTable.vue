@@ -10,7 +10,8 @@
           </h3>
         </div>
         <div class="col text-right">
-          <base-button type="primary" size="sm">See all</base-button>
+          <base-button type="primary" size="sm" icon="fa fa-plus">Add New</base-button>
+          <base-button type="primary" size="sm" icon="fa fa-upload">Bulk Upload</base-button>
         </div>
       </div>
     </div>
@@ -20,63 +21,32 @@
                   :class="type === 'dark' ? 'table-dark': ''"
                   :thead-classes="type === 'dark' ? 'thead-dark': 'thead-light'"
                   tbody-classes="list"
-                  :data="tableData">
-        <template slot="columns">
-          <th>Project</th>
-          <th>Budget</th>
-          <th>Status</th>
-          <th>Users</th>
-          <th>Completion</th>
+                  :data.sync="paginatedCustomers">
+        <template v-slot:columns>
+          <th>#</th>
+          <th>Instansi</th>
+          <th>PIC</th>
+          <th>No Telp</th>
+          <th>Alamat</th>
           <th></th>
         </template>
 
-        <template slot-scope="{row}">
+        <template v-slot:default="{row}">
           <th scope="row">
-            <div class="media align-items-center">
-              <a href="#" class="avatar rounded-circle mr-3">
-                <img alt="Image placeholder" :src="row.img">
-              </a>
-              <div class="media-body">
-                <span class="name mb-0 text-sm">{{row.title}}</span>
-              </div>
-            </div>
+            {{row.id}}
           </th>
           <td class="budget">
-            {{row.budget}}
+            {{row.instansi}}
           </td>
           <td>
-            <badge class="badge-dot mr-4" :type="row.statusType">
-              <i :class="`bg-${row.statusType}`"></i>
-              <span class="status">{{row.status}}</span>
-            </badge>
+            {{row.pic}}
           </td>
           <td>
-            <div class="avatar-group">
-              <a href="#" class="avatar avatar-sm rounded-circle" data-toggle="tooltip" data-original-title="Ryan Tompson">
-                <img alt="Image placeholder" src="img/theme/team-1-800x800.jpg">
-              </a>
-              <a href="#" class="avatar avatar-sm rounded-circle" data-toggle="tooltip" data-original-title="Romina Hadid">
-                <img alt="Image placeholder" src="img/theme/team-2-800x800.jpg">
-              </a>
-              <a href="#" class="avatar avatar-sm rounded-circle" data-toggle="tooltip" data-original-title="Alexander Smith">
-                <img alt="Image placeholder" src="img/theme/team-3-800x800.jpg">
-              </a>
-              <a href="#" class="avatar avatar-sm rounded-circle" data-toggle="tooltip" data-original-title="Jessica Doe">
-                <img alt="Image placeholder" src="img/theme/team-4-800x800.jpg">
-              </a>
-            </div>
+            {{row.telp}}
           </td>
 
           <td>
-            <div class="d-flex align-items-center">
-              <span class="completion mr-2">{{row.completion}}%</span>
-              <div>
-                <base-progress :type="row.statusType"
-                               :show-percentage="false"
-                               class="pt-0"
-                               :value="row.completion"/>
-              </div>
-            </div>
+            {{row.alamat}}
           </td>
 
           <td class="text-right">
@@ -87,9 +57,9 @@
               </a>
 
               <template>
-                <a class="dropdown-item" href="#">Action</a>
-                <a class="dropdown-item" href="#">Another action</a>
-                <a class="dropdown-item" href="#">Something else here</a>
+                <a class="dropdown-item" href="#" @click="showDetailModal(row)">View Detail</a>
+                <a class="dropdown-item" href="#">Edit</a>
+                <a class="dropdown-item" href="#" @click="showDeleteModal(row)">Delete</a>
               </template>
             </base-dropdown>
           </td>
@@ -101,64 +71,78 @@
 
     <div class="card-footer d-flex justify-content-end"
          :class="type === 'dark' ? 'bg-transparent': ''">
-      <base-pagination total="30"></base-pagination>
+      <base-pagination :total="totalCustomer" :per-page="pagination.perPage" :value="currentPage"></base-pagination>
     </div>
+
+    <modal :show.sync="modals.detailmodal"
+            body-classes="p-0"
+            modal-classes="modal-dialog-centered">
+      <template slot="header">
+        <h5 class="modal-title">Customer {{ selectedItem.id }} Detail</h5>
+      </template>
+      <div>
+        ...
+      </div>
+      <template slot="footer">
+        <base-button type="secondary" @click="modals.detailmodal = false">Close</base-button>
+        <base-button type="primary">Print</base-button>
+      </template>
+    </modal>
+
+    <modal :show.sync="modals.deletemodal">
+      <template slot="header">
+        <h5 class="modal-title">Confirm Delete</h5>
+      </template>
+      <div>
+        Delete {{ selectedItem.instansi  }}?
+      </div>
+      <template slot="footer">
+        <base-button type="secondary" @click="modals.deletemodal = false">Cancel</base-button>
+        <base-button type="danger">Delete</base-button>
+      </template>
+    </modal>
 
   </div>
 </template>
 <script>
+  import {mapGetters} from 'vuex'
+
   export default {
-    name: 'projects-table',
+    name: 'data-table',
     props: {
       type: {
         type: String
       },
       title: String
     },
+    methods: {
+      showDetailModal (data) {
+        this.modals.detailmodal = true
+        this.selectedItem = data
+      },
+      showDeleteModal (data) {
+        this.modals.deletemodal = true
+        this.selectedItem = data
+      }
+    },
+    computed: {
+      ...mapGetters([
+          'paginatedCustomers',
+          'totalCustomer',
+          'currentPage'
+      ])
+    },
     data() {
       return {
-        tableData: [
-          {
-            img: 'img/theme/bootstrap.jpg',
-            title: 'Argon Design System',
-            budget: '$2500 USD',
-            status: 'pending',
-            statusType: 'warning',
-            completion: 60
-          },
-          {
-            img: 'img/theme/angular.jpg',
-            title: 'Angular Now UI Kit PRO',
-            budget: '$1800 USD',
-            status: 'completed',
-            statusType: 'success',
-            completion: 100
-          },
-          {
-            img: 'img/theme/sketch.jpg',
-            title: 'Black Dashboard',
-            budget: '$3150 USD',
-            status: 'delayed',
-            statusType: 'danger',
-            completion: 72
-          },
-          {
-            img: 'img/theme/react.jpg',
-            title: 'React Material Dashboard',
-            budget: '$4400 USD',
-            status: 'on schedule',
-            statusType: 'info',
-            completion: 90
-          },
-          {
-            img: 'img/theme/vue.jpg',
-            title: 'Vue Paper UI Kit PRO',
-            budget: '$2200 USD',
-            status: 'completed',
-            statusType: 'success',
-            completion: 100
-          }
-        ]
+        modals: {
+          detailmodal: false,
+          deletemodal: false
+        },
+        pagination: {
+          perPage: 25,
+          page: 1
+        },
+        selectedItem: {}
       }
     }
   }

@@ -62,12 +62,7 @@
         <div class="container-fluid mt--7">
             <div class="row">
                 <div class="col">
-                    <projects-table title="Light Table"></projects-table>
-                </div>
-            </div>
-            <div class="row mt-5">
-                <div class="col">
-                    <projects-table type="dark" title="Dark Table"></projects-table>
+                    <data-table title="Light Table"></data-table>
                 </div>
             </div>
         </div>
@@ -75,11 +70,11 @@
     </div>
 </template>
 <script>
-  import ProjectsTable from './Tables/ProjectsTable'
+  import DataTable from './Tables/DataTable'
   export default {
     name: 'tables',
     components: {
-      ProjectsTable
+      DataTable
     }
   };
 </script>
